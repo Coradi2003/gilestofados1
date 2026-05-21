@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GIL ESTOFADOS | Sofás e Estofados de Luxo</title>
+  <meta name="description" content="GIL ESTOFADOS – Sofás, poltronas e estofados sob medida com qualidade premium. Tradição, elegância e conforto para a sua casa." />
+  <meta name="keywords" content="estofados, sofás, poltronas, reforma de sofá, GIL ESTOFADOS, estofaria, sofá luxo" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    /* =============================================
+       RESET & BASE
+    ============================================= */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold:       #c9a84c;
+      --gold-light: #e8c86a;
+      --gold-dark:  #8a6f28;
+      --cream:      #f5ede0;
+      --cream2:     #ede0cc;
+      --dark:       #0e0c09;
+      --dark2:      #1a1510;
+      --dark3:      #251e15;
+      --dark4:      #2e2519;
+      --text-main:  #e8dcc8;
+      --text-muted: #a89880;
+      --accent:     #d4802a;
+      --shadow-gold: 0 0 40px rgba(201,168,76,0.25);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--dark);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    body.has-custom-cursor {
+      cursor: none;
+    }
+    @media (max-width: 768px) {
+      body.has-custom-cursor { cursor: auto; }
+    }
+    ::selection { background: var(--gold-dark); color: var(--cream); }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+
+    /* =============================================
+       CUSTOM CURSOR (Desktop only)
+    ============================================= */
+    #cursor-dot {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, background 0.2s, opacity 0.3s;
+      box-shadow: 0 0 12px var(--gold), 0 0 30px rgba(201,168,76,0.5);
+      mix-blend-mode: normal;
+      opacity: 0;
+      left: -100px; top: -100px;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 40px; height: 40px;
+      border: 2px solid rgba(201,168,76,0.6);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s, border-color 0.3s, opacity 0.3s;
+      box-shadow: 0 0 20px rgba(201,168,76,0.15);
+      opacity: 0;
+      left: -100px; top: -100px;
+    }
+    #cursor-dot.visible { opacity: 1; }
+    #cursor-ring.visible { opacity: 1; }
+    #cursor-dot.clicking { transform: translate(-50%,-50%) scale(0.5); background: var(--gold-light); }
+    #cursor-ring.clicking { width: 60px; height: 60px; border-color: var(--gold-light); }
+    #cursor-ring.hovering { width: 60px; height: 60px; border-color: rgba(201,168,76,0.9); }
+    #cursor-dot.hovering { transform: translate(-50%,-50%) scale(1.4); background: var(--gold-light); }
+    #particle-canvas {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 99997;
+    }
+    @media (max-width: 768px) {
+      #cursor-dot, #cursor-ring { display: none; }
+    }
+
+    /* =============================================
+       BACKGROUND CANVAS
+    ============================================= */
+    #bg-canvas {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+
+    /* =============================================
+       SCROLLBAR
+    ============================================= */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--dark2); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+    /* =============================================
+       HEADER / NAV
+    ============================================= */
+    header {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 0 2rem;
+      height: 80px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(14,12,9,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    header.scrolled {
+      background: rgba(14,12,9,0.97);
+      box-shadow: 0 4px 40px rgba(0,0,0,0.6);
+    }
+    .logo-area {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .logo-img {
+      height: 68px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(10deg) brightness(0.9) contrast(0.9) drop-shadow(0 0 10px rgba(201,168,76,0.3));
+      transition: all 0.3s ease;
+    }
+    .logo-img:hover {
+      filter: brightness(0) invert(1) sepia(1) saturate(4) hue-rotate(10deg) brightness(1) contrast(1) drop-shadow(0 0 20px rgba(201,168,76,0.55));
+      transform: scale(1.04);
+    }
+    nav { display: flex; align-items: center; gap: 2rem; }
+    nav a {
+      font-size: 0.78rem; font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      position: relative;
+      transition: color 0.3s;
+    }
+    nav a::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 1px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+    nav a:hover { color: var(--gold-light); }
+    nav a:hover::after { transform: scaleX(1); }
+    .nav-instagram {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 30px;
+      font-size: 0.75rem; font-weight: 500;
+      color: var(--gold);
+      letter-spacing: 1px;
+      transition: all 0.3s;
+      background: rgba(201,168,76,0.05);
+    }
+    .nav-instagram:hover {
+      background: var(--gold);
+      color: var(--dark);
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(201,168,76,0.4);
+    }
+    .nav-instagram svg { width: 15px; height: 15px; }
+    .hamburger {
+      display: none;
+      flex-direction: column; gap: 5px;
+      background: transparent;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--gold);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    .mobile-menu {
+      display: none;
+      position: fixed; top: 80px; left: 0; right: 0;
+      background: rgba(14,12,9,0.98);
+      backdrop-filter: blur(20px);
+      padding: 1.5rem 2rem;
+      flex-direction: column; gap: 1.2rem;
+      z-index: 999;
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-size: 1rem; font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(201,168,76,0.1);
+    }
+
+    /* =============================================
+       HERO SECTION
+    ============================================= */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      z-index: 2;
+      background: transparent;
+    }
+    .hero-left-bg {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 50%;
+      background: url('assets/foto2.jpeg') no-repeat center 70%;
+      background-size: cover;
+      z-index: 1;
+    }
+    .hero-bg-overlay {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 80% at 60% 50%, rgba(201,168,76,0.08) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 70% at 20% 80%, rgba(212,128,42,0.06) 0%, transparent 60%),
+                  linear-gradient(to right, rgba(14,12,9,0.85) 0%, rgba(14,12,9,0.75) 45%, rgba(14,12,9,0.4) 100%);
+      z-index: 1;
+    }
+    .hero-image-wrap {
+      position: absolute; right: -5%; top: 0; bottom: 0;
+      width: 55%;
+      overflow: hidden;
+    }
+    .hero-image-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center;
+      opacity: 0.55;
+      filter: saturate(1.1) contrast(1.05);
+    }
+    .hero-image-wrap::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, var(--dark) 0%, transparent 60%);
+      z-index: 1;
+    }
+    /* HERO CONTENT — NOVO LAYOUT */
+    .hero-content {
+      position: relative; z-index: 3;
+      width: 100%;
+      max-width: 1180px;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 3rem;
+      animation: fadeInUp 1s ease-out both;
+    }
+    .hero-left { display: flex; flex-direction: column; }
+    .hero-right {
+      display: flex; flex-direction: column;
+      gap: 1.5rem;
+      padding-left: 2rem;
+      border-left: 1px solid rgba(201,168,76,0.2);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(201,168,76,0.08);
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 40px;
+      padding: 7px 18px;
+      width: fit-content;
+      margin-bottom: 1.8rem;
+    }
+    .hero-badge-dot {
+      width: 7px; height: 7px;
+      background: var(--gold);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--gold);
+      animation: blink 1.8s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity:1; } 50% { opacity:0.3; }
+    }
+    .hero-badge-text {
+      font-size: 0.68rem; font-weight: 600;
+      color: var(--gold-light);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.2rem, 5.5vw, 5.2rem);
+      font-weight: 900;
+      line-height: 1.0;
+      color: var(--cream);
+      margin-bottom: 1rem;
+    }
+    .hero-title .line-accent {
+      display: block;
+      font-style: italic;
+      background: linear-gradient(100deg, var(--gold-light) 0%, var(--gold) 50%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-title .line-outline {
+      display: block;
+      -webkit-text-stroke: 1.5px rgba(201,168,76,0.5);
+      color: transparent;
+      font-size: 0.82em;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+    .hero-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 2rem;
+      max-width: 420px;
+    }
+    .hero-ctas {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+    }
+    /* Hero right column */
+    .hero-feature {
+      display: flex; align-items: flex-start; gap: 1rem;
+    }
+    .hero-feature-icon {
+      width: 44px; height: 44px; flex-shrink: 0;
+      background: rgba(201,168,76,0.08);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold);
+      transition: all 0.3s;
+    }
+    .hero-feature:hover .hero-feature-icon {
+      background: rgba(201,168,76,0.15);
+      border-color: var(--gold);
+      box-shadow: 0 0 16px rgba(201,168,76,0.2);
+    }
+    .hero-feature-icon svg { width: 20px; height: 20px; }
+    .hero-feature-body {}
+    .hero-feature-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 3px;
+    }
+    .hero-feature-desc {
+      font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;
+    }
+    .hero-divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.2), transparent);
+    }
+    .hero-social-proof {
+      display: flex; align-items: center; gap: 1rem;
+      padding-top: 0.5rem;
+    }
+    .hero-stars {
+      display: flex; gap: 2px;
+    }
+    .hero-stars svg { width: 14px; height: 14px; fill: var(--gold); }
+    .hero-social-text {
+      font-size: 0.75rem; color: var(--text-muted); line-height: 1.3;
+    }
+    .hero-social-text strong { color: var(--gold-light); }
+    /* Responsive hero */
+    @media (max-width: 900px) {
+      .hero-left-bg {
+        width: 100%;
+        background-position: center center;
+      }
+      .hero-bg-overlay {
+        background: linear-gradient(to bottom, rgba(14,12,9,0.9) 0%, rgba(14,12,9,0.75) 50%, rgba(14,12,9,0.85) 100%);
+      }
+      .hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        justify-items: center;
+      }
+      .hero-right {
+        border-left: none;
+        border-top: 1px solid rgba(201,168,76,0.2);
+        padding-left: 0;
+        padding-top: 1.5rem;
+        width: 100%;
+        max-width: 480px;
+      }
+      .hero-ctas { justify-content: center; }
+      .hero-badge { margin: 0 auto 1.8rem; }
+      .hero-tagline { max-width: 100%; }
+    }
+    .btn-gold {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 15px 32px;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light));
+      color: var(--dark);
+      font-weight: 700; font-size: 0.8rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      border-radius: 4px;
+      box-shadow: 0 0 30px rgba(201,168,76,0.35), 0 4px 20px rgba(0,0,0,0.4);
+      transition: all 0.35s;
+      position: relative; overflow: hidden;
+    }
+    .btn-gold::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+    .btn-gold:hover::before { transform: translateX(100%); }
+    .btn-gold:hover {
+      box-shadow: 0 0 50px rgba(201,168,76,0.6), 0 8px 30px rgba(0,0,0,0.5);
+      transform: translateY(-2px);
+    }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 15px 32px;
+      border: 1px solid rgba(201,168,76,0.5);
+      color: var(--gold-light);
+      font-weight: 500; font-size: 0.8rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      border-radius: 4px;
+      transition: all 0.35s;
+      background: rgba(201,168,76,0.05);
+    }
+    .btn-outline:hover {
+      background: rgba(201,168,76,0.12);
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(201,168,76,0.2);
+      transform: translateY(-2px);
+    }
+    .hero-scroll-hint {
+      position: absolute; bottom: 2.5rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      z-index: 3;
+      animation: bounce 2s infinite;
+    }
+    .hero-scroll-hint span {
+      font-size: 0.6rem; letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .scroll-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+    @keyframes scrollLine {
+      0%, 100% { opacity: 0.3; transform: scaleY(0.5) translateY(-5px); }
+      50% { opacity: 1; transform: scaleY(1) translateY(5px); }
+    }
+
+    /* =============================================
+       SECTION SHARED
+    ============================================= */
+    section { position: relative; z-index: 2; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-size: 0.68rem; font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+    .section-label::before {
+      content: ''; width: 28px; height: 1px;
+      background: var(--gold); opacity: 0.7;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      color: var(--cream);
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+    .section-title em {
+      font-style: italic;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gold-divider {
+      width: 60px; height: 2px;
+      background: linear-gradient(to right, var(--gold), var(--gold-light));
+      margin: 1.5rem 0;
+    }
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 2rem; }
+
+    /* =============================================
+       STATS RIBBON
+    ============================================= */
+    #stats {
+      background: linear-gradient(135deg, var(--dark2), var(--dark3));
+      border-top: 1px solid rgba(201,168,76,0.15);
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+      padding: 3rem 0;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+    .stat-item {
+      padding: 1.5rem 2rem;
+      text-align: center;
+      border-right: 1px solid rgba(201,168,76,0.12);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.72rem; font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+    }
+
+    /* =============================================
+       SERVICES SECTION
+    ============================================= */
+    #servicos {
+      padding: 7rem 0;
+      background: var(--dark);
+    }
+    .services-header { text-align: center; margin-bottom: 4rem; }
+    .services-header .gold-divider { margin: 1.5rem auto; }
+    .services-header .section-label { justify-content: center; }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.1);
+    }
+    .service-card {
+      background: var(--dark2);
+      padding: 2.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s;
+      group: true;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      transform: scaleX(0);
+      transition: transform 0.4s;
+    }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-card:hover {
+      background: var(--dark3);
+      transform: translateY(-3px);
+    }
+    .service-icon {
+      width: 56px; height: 56px;
+      margin-bottom: 1.5rem;
+      background: rgba(201,168,76,0.08);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.4s;
+    }
+    .service-card:hover .service-icon {
+      background: rgba(201,168,76,0.15);
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(201,168,76,0.2);
+    }
+    .service-icon svg { width: 26px; height: 26px; color: var(--gold); }
+    .service-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 0.8rem;
+    }
+    .service-desc {
+      font-size: 0.88rem; line-height: 1.7;
+      color: var(--text-muted);
+    }
+    .service-num {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem; font-weight: 900;
+      color: rgba(201,168,76,0.05);
+      line-height: 1;
+      transition: color 0.4s;
+    }
+    .service-card:hover .service-num { color: rgba(201,168,76,0.1); }
+
+    /* =============================================
+       CATALOG SECTION
+    ============================================= */
+    #catalogo {
+      padding: 7rem 0;
+      background: var(--dark2);
+    }
+    .catalog-header { margin-bottom: 4rem; }
+    .catalog-header .section-label { display: inline-flex; }
+    .catalog-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .catalog-card {
+      position: relative; overflow: hidden;
+      border-radius: 4px;
+      background: var(--dark3);
+      border: 1px solid rgba(201,168,76,0.1);
+      transition: all 0.5s;
+      group: true;
+    }
+    .catalog-card:hover {
+      border-color: rgba(201,168,76,0.4);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(201,168,76,0.1);
+      transform: translateY(-6px);
+    }
+    .catalog-img-wrap {
+      position: relative; overflow: hidden;
+      aspect-ratio: 4/3;
+    }
+    .catalog-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s, filter 0.4s;
+      filter: saturate(0.9);
+    }
+    .catalog-card:hover .catalog-img-wrap img {
+      transform: scale(1.07);
+      filter: saturate(1.1);
+    }
+    .catalog-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(14,12,9,0.8) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      display: flex; align-items: flex-end; padding: 1.5rem;
+    }
+    .catalog-card:hover .catalog-overlay { opacity: 1; }
+    .catalog-overlay-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px;
+      background: var(--gold);
+      color: var(--dark);
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.3s;
+    }
+    .catalog-overlay-btn:hover {
+      background: var(--gold-light);
+      transform: translateX(3px);
+    }
+    .catalog-info {
+      padding: 1.4rem 1.6rem;
+    }
+    .catalog-tag {
+      font-size: 0.65rem; letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+    .catalog-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem; font-weight: 700;
+      color: var(--cream);
+    }
+    .catalog-placeholder {
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+      font-size: 0.85rem; letter-spacing: 2px;
+      text-transform: uppercase;
+      border: 2px dashed rgba(201,168,76,0.2);
+      aspect-ratio: 4/3;
+      position: relative;
+      text-align: center;
+    }
+    .catalog-placeholder svg { width: 40px; height: 40px; opacity: 0.3; }
+    .catalog-cta {
+      text-align: center;
+      margin-top: 3rem;
+    }
+
+    /* =============================================
+       ABOUT SECTION
+    ============================================= */
+    #sobre {
+      padding: 7rem 0;
+      background: var(--dark);
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+    .about-image-stack {
+      position: relative;
+      height: 500px;
+    }
+    .about-img-main {
+      width: 75%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 4px;
+      filter: saturate(0.85);
+      box-shadow: 30px 30px 80px rgba(0,0,0,0.6);
+    }
+    .about-img-accent {
+      position: absolute;
+      bottom: -2rem; right: 0;
+      width: 45%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 4px;
+      filter: saturate(0.9);
+      border: 3px solid var(--dark);
+      box-shadow: 20px 20px 50px rgba(0,0,0,0.5);
+    }
+    .about-badge {
+      position: absolute;
+      top: 2rem; right: 1rem;
+      width: 100px; height: 100px;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      border-radius: 50%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(201,168,76,0.4);
+      animation: rotateBadge 20s linear infinite;
+    }
+    .about-badge-inner {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; font-weight: 900;
+      color: var(--dark);
+      line-height: 1;
+    }
+    .about-badge-text {
+      font-size: 0.5rem; font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--dark);
+      opacity: 0.8;
+    }
+    @keyframes rotateBadge {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .about-content p {
+      font-size: 0.95rem;
+      line-height: 1.85;
+      color: var(--text-muted);
+      margin-bottom: 1.3rem;
+    }
+    .about-highlights {
+      display: flex; flex-direction: column; gap: 1rem;
+      margin-top: 2rem;
+    }
+    .highlight-item {
+      display: flex; align-items: flex-start; gap: 1rem;
+      padding: 1rem 1.2rem;
+      background: rgba(201,168,76,0.04);
+      border-left: 2px solid var(--gold);
+      border-radius: 0 4px 4px 0;
+      transition: all 0.3s;
+    }
+    .highlight-item:hover {
+      background: rgba(201,168,76,0.08);
+      transform: translateX(4px);
+    }
+    .highlight-icon { color: var(--gold); flex-shrink: 0; margin-top: 2px; }
+    .highlight-icon svg { width: 18px; height: 18px; }
+    .highlight-text { font-size: 0.88rem; color: var(--text-main); line-height: 1.5; }
+    .highlight-text strong { color: var(--gold-light); }
+
+    /* =============================================
+       PROCESS SECTION
+    ============================================= */
+    #processo {
+      padding: 7rem 0;
+      background: var(--dark2);
+      overflow: hidden;
+    }
+    .process-header { text-align: center; margin-bottom: 5rem; }
+    .process-header .gold-divider { margin: 1.5rem auto; }
+    .process-header .section-label { justify-content: center; }
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      position: relative;
+    }
+    .process-steps::before { display: none; }
+    #process-lightning {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .process-step {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+      padding: 0 1.5rem;
+      position: relative; z-index: 1;
+    }
+    .step-circle {
+      width: 80px; height: 80px;
+      background: var(--dark2);
+      border: 2px solid rgba(201,168,76,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+      transition: all 0.4s;
+    }
+    .step-circle::before {
+      content: '';
+      position: absolute; inset: -4px;
+      border-radius: 50%;
+      border: 1px solid transparent;
+      background: linear-gradient(135deg, var(--gold), transparent) border-box;
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: destination-out;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .process-step:hover .step-circle::before { opacity: 1; }
+    .process-step:hover .step-circle {
+      border-color: var(--gold);
+      box-shadow: 0 0 25px rgba(201,168,76,0.3);
+      transform: translateY(-3px);
+    }
+    .step-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .step-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+    .step-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* =============================================
+       CONTACT SECTION
+    ============================================= */
+    #contato {
+      padding: 7rem 0;
+      background: var(--dark);
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .contact-info { padding-right: 2rem; }
+    .contact-info p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+    .contact-items {
+      display: flex; flex-direction: column; gap: 1.2rem;
+      margin-bottom: 2.5rem;
+    }
+    .contact-item {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.2rem;
+      background: rgba(201,168,76,0.04);
+      border: 1px solid rgba(201,168,76,0.1);
+      border-radius: 6px;
+      transition: all 0.3s;
+    }
+    .contact-item:hover {
+      background: rgba(201,168,76,0.08);
+      border-color: rgba(201,168,76,0.3);
+      transform: translateX(4px);
+    }
+    .contact-item-icon {
+      width: 40px; height: 40px;
+      background: rgba(201,168,76,0.1);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .contact-item-icon svg { width: 18px; height: 18px; }
+    .contact-item-text { font-size: 0.88rem; color: var(--text-main); }
+    .contact-item-text span { display: block; font-size: 0.72rem; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 2px; text-transform: uppercase; }
+    .contact-form {
+      background: var(--dark2);
+      border: 1px solid rgba(201,168,76,0.1);
+      border-radius: 8px;
+      padding: 2.5rem;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    .form-group label {
+      font-size: 0.72rem; font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 2px; text-transform: uppercase;
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      background: rgba(14,12,9,0.6);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: 4px;
+      padding: 12px 16px;
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .form-group select option { background: var(--dark2); }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 15px rgba(201,168,76,0.12);
+      background: rgba(14,12,9,0.8);
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-muted); opacity: 0.6; }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-submit { width: 100%; margin-top: 0.5rem; justify-content: center; }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer {
+      background: var(--dark2);
+      border-top: 1px solid rgba(201,168,76,0.15);
+      padding: 4rem 0 2rem;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+    .footer-brand .logo-text .brand-name { font-size: 1.1rem; }
+    .footer-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-top: 1rem;
+      max-width: 280px;
+    }
+    .footer-social {
+      display: flex; gap: 0.8rem;
+      margin-top: 1.5rem;
+    }
+    .social-btn {
+      width: 40px; height: 40px;
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.3s;
+    }
+    .social-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(201,168,76,0.08);
+      box-shadow: 0 0 15px rgba(201,168,76,0.2);
+      transform: translateY(-2px);
+    }
+    .social-btn svg { width: 16px; height: 16px; }
+    .footer-col h4 {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+    .footer-col ul li a {
+      font-size: 0.85rem; color: var(--text-muted);
+      transition: color 0.3s;
+    }
+    .footer-col ul li a:hover { color: var(--gold-light); }
+    .footer-bottom {
+      border-top: 1px solid rgba(201,168,76,0.1);
+      padding-top: 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-copy {
+      font-size: 0.78rem; color: var(--text-muted);
+    }
+    .footer-insta {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 30px;
+      font-size: 0.72rem; font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 1px;
+      transition: all 0.3s;
+    }
+    .footer-insta:hover {
+      background: var(--gold);
+      color: var(--dark);
+      border-color: var(--gold);
+    }
+    .footer-insta svg { width: 14px; height: 14px; }
+
+    /* =============================================
+       FLOATING WHATSAPP BUTTON
+    ============================================= */
+    #whatsapp-btn {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      z-index: 9000;
+      width: 62px; height: 62px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 30px rgba(37,211,102,0.45), 0 2px 10px rgba(0,0,0,0.3);
+      transition: all 0.35s;
+      animation: pulse-wa 2.5s ease-in-out infinite;
+    }
+    #whatsapp-btn:hover {
+      transform: scale(1.12) translateY(-3px);
+      box-shadow: 0 10px 40px rgba(37,211,102,0.6), 0 4px 15px rgba(0,0,0,0.4);
+      animation: none;
+    }
+    #whatsapp-btn svg { width: 32px; height: 32px; fill: #fff; }
+    .wa-tooltip {
+      position: absolute; right: 74px;
+      background: var(--dark2);
+      border: 1px solid rgba(201,168,76,0.2);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.78rem; font-weight: 500;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateX(5px);
+      transition: all 0.3s;
+    }
+    .wa-tooltip::after {
+      content: '';
+      position: absolute; right: -6px; top: 50%;
+      transform: translateY(-50%);
+      border: 6px solid transparent;
+      border-right: none;
+      border-left-color: var(--dark2);
+    }
+    #whatsapp-btn:hover .wa-tooltip { opacity: 1; transform: translateX(0); }
+    @keyframes pulse-wa {
+      0%, 100% { box-shadow: 0 6px 30px rgba(37,211,102,0.45), 0 0 0 0 rgba(37,211,102,0.4); }
+      50% { box-shadow: 0 6px 30px rgba(37,211,102,0.45), 0 0 0 12px rgba(37,211,102,0); }
+    }
+
+    /* =============================================
+       ANIMATIONS
+    ============================================= */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(6px); }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* =============================================
+       RESPONSIVE – MOBILE
+    ============================================= */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+      .stat-item:nth-child(3) { border-top: 1px solid rgba(201,168,76,0.12); }
+      .stat-item:nth-child(4) { border-right: none; border-top: 1px solid rgba(201,168,76,0.12); }
+      .services-grid { grid-template-columns: repeat(2,1fr); }
+      .catalog-row { grid-template-columns: repeat(2,1fr); }
+      .about-grid { grid-template-columns: 1fr; }
+      .about-image-stack { height: 360px; }
+      .process-steps { grid-template-columns: repeat(2,1fr); gap: 2rem; }
+      .process-steps::before { display: none; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .hero-left-bg { background-position: center center; }
+      nav .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .logo-img { height: 56px; }
+      .hero-image-wrap { width: 100%; right: 0; opacity: 0.2; }
+      .hero-content { text-align: center; justify-items: center; }
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .services-grid { grid-template-columns: 1fr; }
+      .catalog-row { grid-template-columns: 1fr; }
+      .about-image-stack { height: 280px; }
+      .about-badge { width: 70px; height: 70px; top: 1rem; right: 0.5rem; }
+      .about-badge-inner { font-size: 1.3rem; }
+      .process-steps { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+      .form-row { grid-template-columns: 1fr; }
+      .contact-info { padding-right: 0; }
+    }
+    @media (max-width: 480px) {
+      header { padding: 0 1rem; }
+      .container { padding: 0 1.2rem; }
+      .hero-title { font-size: 2.6rem; }
+      .btn-gold, .btn-outline { padding: 13px 22px; font-size: 0.72rem; }
+      #whatsapp-btn { width: 54px; height: 54px; bottom: 1.2rem; right: 1.2rem; }
+      .stat-number { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BACKGROUND CANVAS -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- CURSOR CANVAS (desktop particles) -->
+  <canvas id="particle-canvas"></canvas>
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- ======================== HEADER ======================== -->
+  <header id="main-header">
+    <a href="#hero" class="logo-area" aria-label="GIL ESTOFADOS">
+      <img src="assets/LOGO.png" alt="Gil Estofados" class="logo-img" />
+    </a>
+    <nav>
+      <div class="nav-links" style="display:flex;align-items:center;gap:2rem;">
+        <a href="#servicos">Serviços</a>
+        <a href="#catalogo">Catálogo</a>
+        <a href="#sobre">Sobre</a>
+        <a href="#contato">Contato</a>
+      </div>
+      <a href="https://www.instagram.com/gil_estofados1" target="_blank" rel="noopener" class="nav-instagram" id="header-instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        @gil_estofados1
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Menu de navegação">
+    <a href="#servicos" class="mobile-nav-link">Serviços</a>
+    <a href="#catalogo" class="mobile-nav-link">Catálogo</a>
+    <a href="#sobre" class="mobile-nav-link">Sobre Nós</a>
+    <a href="#contato" class="mobile-nav-link">Contato</a>
+    <a href="https://www.instagram.com/gil_estofados1" target="_blank" rel="noopener" id="mobile-instagram">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      Instagram
+    </a>
+  </div>
+
+  <!-- ======================== HERO ======================== -->
+  <section id="hero">
+    <div class="hero-left-bg"></div>
+    <div class="hero-bg-overlay"></div>
+    <div class="hero-image-wrap">
+      <img src="assets/sofa_hero.png" alt="Sofá de luxo Gil Estofados" />
+    </div>
+    <div class="hero-content">
+
+      <!-- COLUNA ESQUERDA -->
+      <div class="hero-left">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          <span class="hero-badge-text">ESTOFARIA</span>
+        </div>
+        <h1 class="hero-title">
+          <span class="line-outline">Gil Estofados</span>
+          Conforto que<br>
+          <span class="line-accent">transforma</span>
+          ambientes
+        </h1>
+        <p class="hero-tagline">
+          Do tecido à entrega — cada peça é uma obra de arte artesanal feita exclusivamente para você.
+        </p>
+        <div class="hero-ctas">
+          <a href="https://wa.me/5549998198389?text=Olá!%20Vim%20pelo%20site%20e%20gostaria%20de%20um%20orçamento." target="_blank" rel="noopener" class="btn-gold" id="hero-cta-whatsapp">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Solicitar Orçamento
+          </a>
+          <a href="#catalogo" class="btn-outline" id="hero-cta-catalog">
+            Ver Catálogo
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- COLUNA DIREITA -->
+      <div class="hero-right">
+        <div class="hero-feature">
+          <div class="hero-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="hero-feature-body">
+            <p class="hero-feature-title">Garantia de Qualidade</p>
+            <p class="hero-feature-desc">Materiais selecionados, estrutura reforçada e acabamento impecável em cada peça produzida.</p>
+          </div>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-feature">
+          <div class="hero-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          </div>
+          <div class="hero-feature-body">
+            <p class="hero-feature-title">100% Personalizado</p>
+            <p class="hero-feature-desc">Escolha o tecido, a cor, o tamanho e o estilo. Criamos exatamente o que você imaginou.</p>
+          </div>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-feature">
+          <div class="hero-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h6l2 5v3h-8V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </div>
+          <div class="hero-feature-body">
+            <p class="hero-feature-title">Entrega Pontual</p>
+            <p class="hero-feature-desc">Cumprimos prazos e mantemos você informado em cada etapa da produção.</p>
+          </div>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-social-proof">
+          <div class="hero-stars">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <p class="hero-social-text"><strong>+2.000 clientes</strong> satisfeitos<br>em toda a região</p>
+        </div>
+      </div>
+
+    </div>
+    <div class="hero-scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ======================== STATS ======================== -->
+  <section id="stats">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item reveal">
+          <div class="stat-number" data-target="15">0</div>
+          <div class="stat-label">Anos de experiência</div>
+        </div>
+        <div class="stat-item reveal reveal-delay-1">
+          <div class="stat-number" data-target="2000">0</div>
+          <div class="stat-label">Clientes satisfeitos</div>
+        </div>
+        <div class="stat-item reveal reveal-delay-2">
+          <div class="stat-number" data-target="100" data-prefix="+">+0</div>
+          <div class="stat-label">Modelos disponíveis</div>
+        </div>
+        <div class="stat-item reveal reveal-delay-3">
+          <div class="stat-number" data-target="100">0</div>
+          <div class="stat-label">% qualidade garantida</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== SERVICES ======================== -->
+  <section id="servicos">
+    <div class="container">
+      <div class="services-header reveal">
+        <p class="section-label">O que fazemos</p>
+        <h2 class="section-title">Serviços de <em>excelência</em></h2>
+        <div class="gold-divider"></div>
+        <p style="color:var(--text-muted);font-size:0.95rem;max-width:560px;margin:0 auto;line-height:1.7;">
+          Do tecido à entrega, cada etapa é tratada com dedicação e maestria para superar suas expectativas.
+        </p>
+      </div>
+      <div class="services-grid">
+        <div class="service-card reveal">
+          <span class="service-num">01</span>
+          <div class="service-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <h3 class="service-title">Sofás Sob Medida</h3>
+          <p class="service-desc">Criamos o sofá dos seus sonhos com as dimensões, tecidos e cores que você escolher. Projeto 100% personalizado.</p>
+        </div>
+        <div class="service-card reveal reveal-delay-1">
+          <span class="service-num">02</span>
+          <div class="service-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <h3 class="service-title">Reforma de Estofados</h3>
+          <p class="service-desc">Renovamos seu sofá antigo com acabamento impecável. Novo tecido, nova espuma, novo visual — mesmo charme.</p>
+        </div>
+        <div class="service-card reveal reveal-delay-2">
+          <span class="service-num">03</span>
+          <div class="service-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+          </div>
+          <h3 class="service-title">Poltronas &amp; Cadeiras</h3>
+          <p class="service-desc">Poltronas de leitura, cadeiras de jantar e muito mais. Estofamos qualquer peça com perfeição artesanal.</p>
+        </div>
+        <div class="service-card reveal reveal-delay-1">
+          <span class="service-num">04</span>
+          <div class="service-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          </div>
+          <h3 class="service-title">Cabeceiras &amp; Camas</h3>
+          <p class="service-desc">Cabeceiras acolchoadas e estofadas para transformar seu quarto em um ambiente de luxo e sofisticação.</p>
+        </div>
+        <div class="service-card reveal reveal-delay-2">
+          <span class="service-num">05</span>
+          <div class="service-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          </div>
+          <h3 class="service-title">Estofados Corporativos</h3>
+          <p class="service-desc">Soluções em larga escala para escritórios, hotéis e restaurantes. Durabilidade e estética profissional.</p>
+        </div>
+        <div class="service-card reveal reveal-delay-3">
+          <span class="service-num">06</span>
+          <div class="service-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
+          <h3 class="service-title">Garantia &amp; Suporte</h3>
+          <p class="service-desc">Garantia nos materiais e acabamentos. Nosso compromisso é com a sua satisfação total e duradoura.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== CATALOG ======================== -->
+  <section id="catalogo">
+    <div class="container">
+      <div class="catalog-header reveal">
+        <p class="section-label">Nossos produtos</p>
+        <h2 class="section-title">Catálogo <em>exclusivo</em></h2>
+        <div class="gold-divider"></div>
+        <p style="color:var(--text-muted);font-size:0.95rem;max-width:520px;line-height:1.7;">
+          Uma seleção dos nossos trabalhos. Cada peça é única, produzida com os melhores materiais disponíveis.
+        </p>
+      </div>
+      <div class="catalog-row">
+        <div class="catalog-card reveal">
+          <div class="catalog-img-wrap">
+            <img src="assets/catalog_sofa1.png" alt="Sofá de couro cognac Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20neste%20modelo%20de%20sofá." target="_blank" class="catalog-overlay-btn" id="catalog-cta-1">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-1">
+          <div class="catalog-img-wrap">
+            <img src="assets/catalog_sofa2.png" alt="Poltrona veludo borgonha Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20nesta%20poltrona." target="_blank" class="catalog-overlay-btn" id="catalog-cta-2">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-2">
+          <div class="catalog-img-wrap">
+            <img src="assets/catalog_sofa3.png" alt="Sofá seccional Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20seccional." target="_blank" class="catalog-overlay-btn" id="catalog-cta-3">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa2.jpeg" alt="Sofá moderno de linho rústico Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20de%20Linho%20Rústico%20-%20Coleção%20Valência." target="_blank" class="catalog-overlay-btn" id="catalog-cta-4">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-1">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa3.jpeg" alt="Sofá bouclé premium Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20Bouclé%20Premium%20-%20Coleção%20Veneza." target="_blank" class="catalog-overlay-btn" id="catalog-cta-5">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-2">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa4.jpeg" alt="Sofá de couro macio Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20de%20Couro%20Macio%20-%20Coleção%20Firenze." target="_blank" class="catalog-overlay-btn" id="catalog-cta-6">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa5.jpeg" alt="Sofá veludo italiano luxuoso Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20de%20Veludo%20Italiano%20-%20Coleção%20Siena." target="_blank" class="catalog-overlay-btn" id="catalog-cta-7">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-1">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa6.jpeg" alt="Sofá modular de linho sofisticado Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20Modular%20de%20Linho%20-%20Coleção%20Verona." target="_blank" class="catalog-overlay-btn" id="catalog-cta-8">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-2">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa7.jpeg" alt="Poltrona de couro legítimo de luxo Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20na%20Poltrona%20de%20Couro%20Legítimo%20-%20Coleção%20Torino." target="_blank" class="catalog-overlay-btn" id="catalog-cta-9">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa8.jpeg" alt="Sofá estilo clean em algodão natural Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20Clean%20em%20Algodão%20-%20Coleção%20Napoli." target="_blank" class="catalog-overlay-btn" id="catalog-cta-10">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-1">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa9.jpeg" alt="Sofá Chesterfield clássico em couro legítimo Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20Chesterfield%20-%20Coleção%20Palermo." target="_blank" class="catalog-overlay-btn" id="catalog-cta-11">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-2">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa10.jpeg" alt="Sofá retrátil de camurça/suede Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20Retrátil%20-%20Coleção%20Bologna." target="_blank" class="catalog-overlay-btn" id="catalog-cta-12">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa11.jpeg" alt="Sofá de canto em linho cinza Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20de%20Canto%20em%20Linho%20-%20Coleção%20Gênova." target="_blank" class="catalog-overlay-btn" id="catalog-cta-13">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-1">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa12.jpeg" alt="Poltrona elegante em tecido bouclé Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20na%20Poltrona%20Bouclé%20-%20Coleção%20Bari." target="_blank" class="catalog-overlay-btn" id="catalog-cta-14">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-2">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa13.jpeg" alt="Sofá extremamente confortável com tecido soft Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20Confort%20-%20Coleção%20Lucca." target="_blank" class="catalog-overlay-btn" id="catalog-cta-15">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa14.jpeg" alt="Sofá luxuoso em linho fino Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20Lux%20em%20Linho%20-%20Coleção%20Pisa." target="_blank" class="catalog-overlay-btn" id="catalog-cta-16">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-1">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa15.jpeg" alt="Sofá com design curvo em veludo suave Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20sofá%20Curvo%20em%20Veludo%20-%20Coleção%20Amalfi." target="_blank" class="catalog-overlay-btn" id="catalog-cta-17">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+        <div class="catalog-card reveal reveal-delay-2">
+          <div class="catalog-img-wrap">
+            <img src="assets/sofa16.jpeg" alt="Chaise longue elegante para sala de estar Gil Estofados" />
+            <div class="catalog-overlay">
+              <a href="https://wa.me/5549998198389?text=Olá!%20Tenho%20interesse%20no%20Chaise%20Longue%20-%20Coleção%20Ravello." target="_blank" class="catalog-overlay-btn" id="catalog-cta-18">Pedir orçamento</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="catalog-cta reveal">
+        <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:1.5rem;letter-spacing:1px;">
+          Mais modelos disponíveis sob consulta. Entre em contato e descubra tudo que podemos criar para você.
+        </p>
+        <a href="https://wa.me/5549998198389?text=Olá!%20Gostaria%20de%20ver%20mais%20modelos%20do%20catálogo." target="_blank" rel="noopener" class="btn-gold" id="catalog-more-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Ver Catálogo Completo
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== ABOUT ======================== -->
+  <section id="sobre">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image-stack reveal">
+          <img src="assets/sofa_hero.png" alt="Estofados Gil oficina" class="about-img-main" />
+          <img src="assets/catalog_sofa2.png" alt="Detalhe estofado" class="about-img-accent" />
+          <div class="about-badge">
+            <span class="about-badge-inner">15+</span>
+            <span class="about-badge-text">Anos</span>
+          </div>
+        </div>
+        <div class="about-content reveal reveal-delay-2">
+          <p class="section-label">Nossa história</p>
+          <h2 class="section-title">Paixão em cada <em>ponto</em></h2>
+          <div class="gold-divider"></div>
+          <p>A GIL ESTOFADOS nasceu da paixão pelo artesanato e da crença de que cada ambiente merece o melhor. Com mais de 15 anos de história, nos tornamos referência em estofados de alto padrão na região.</p>
+          <p>Cada peça que sai do nosso ateliê carrega a assinatura de quem faz com orgulho — tecidos selecionados, estruturas reforçadas e um acabamento que só a experiência pode garantir.</p>
+          <div class="about-highlights">
+            <div class="highlight-item">
+              <div class="highlight-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <p class="highlight-text"><strong>Materiais de primeira linha</strong> — tecidos importados e nacionais selecionados para durar décadas.</p>
+            </div>
+            <div class="highlight-item">
+              <div class="highlight-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <p class="highlight-text"><strong>Artesanato tradicional</strong> — técnicas de estofaria que preservam qualidade e beleza incomparáveis.</p>
+            </div>
+            <div class="highlight-item">
+              <div class="highlight-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <p class="highlight-text"><strong>Entrega pontual</strong> — cumprimos prazos e mantemos você informado em cada etapa.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== PROCESS ======================== -->
+  <section id="processo">
+    <div class="container">
+      <div class="process-header reveal">
+        <p class="section-label">Como trabalhamos</p>
+        <h2 class="section-title">Do sonho à <em>realidade</em></h2>
+        <div class="gold-divider"></div>
+      </div>
+      <div class="process-steps">
+        <canvas id="process-lightning"></canvas>
+        <div class="process-step reveal">
+          <div class="step-circle"><span class="step-num">1</span></div>
+          <h3 class="step-name">Consulta</h3>
+          <p class="step-desc">Você nos conta o que quer. Medidas, cores, tecidos e estilo. Tudo começa com uma conversa.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-1">
+          <div class="step-circle"><span class="step-num">2</span></div>
+          <h3 class="step-name">Projeto</h3>
+          <p class="step-desc">Elaboramos o projeto personalizado com opções de materiais e apresentamos o orçamento detalhado.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-2">
+          <div class="step-circle"><span class="step-num">3</span></div>
+          <h3 class="step-name">Produção</h3>
+          <p class="step-desc">Nossos artesãos trabalham com precisão e cuidado para criar seu estofado do zero.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-3">
+          <div class="step-circle"><span class="step-num">4</span></div>
+          <h3 class="step-name">Entrega</h3>
+          <p class="step-desc">Entregamos no prazo combinado, com garantia e todo o suporte que você precisa.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== CONTACT ======================== -->
+  <section id="contato">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-info reveal">
+          <p class="section-label">Fale conosco</p>
+          <h2 class="section-title">Vamos criar algo <em>incrível?</em></h2>
+          <div class="gold-divider"></div>
+          <p>Entre em contato agora mesmo e descubra como podemos transformar seus ambientes com estofados únicos e personalizados.</p>
+          <div class="contact-items">
+            <a href="https://wa.me/5549998198389" target="_blank" rel="noopener" class="contact-item" id="contact-whatsapp">
+              <div class="contact-item-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              </div>
+              <div class="contact-item-text">
+                <span>WhatsApp</span>
+                (49) 99819-8389
+              </div>
+            </a>
+            <a href="https://www.instagram.com/gil_estofados1" target="_blank" rel="noopener" class="contact-item" id="contact-instagram">
+              <div class="contact-item-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              </div>
+              <div class="contact-item-text">
+                <span>Instagram</span>
+                @gil_estofados1
+              </div>
+            </a>
+          </div>
+          <a href="https://wa.me/5549998198389?text=Olá!%20Gostaria%20de%20fazer%20um%20orçamento." target="_blank" rel="noopener" class="btn-gold" id="contact-wa-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Chamar no WhatsApp
+          </a>
+        </div>
+        <div class="contact-form reveal reveal-delay-2">
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--cream);margin-bottom:1.5rem;">Solicite um orçamento</h3>
+          <form id="contact-form" onsubmit="handleFormSubmit(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="form-name">Nome</label>
+                <input type="text" id="form-name" name="name" placeholder="Seu nome" required />
+              </div>
+              <div class="form-group">
+                <label for="form-phone">Telefone</label>
+                <input type="tel" id="form-phone" name="phone" placeholder="(49) 9 9999-9999" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="form-service">Serviço de interesse</label>
+              <select id="form-service" name="service">
+                <option value="">Selecione um serviço</option>
+                <option>Sofá Sob Medida</option>
+                <option>Reforma de Estofado</option>
+                <option>Poltrona / Cadeira</option>
+                <option>Cabeceira / Cama</option>
+                <option>Estofado Corporativo</option>
+                <option>Outro</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="form-message">Mensagem</label>
+              <textarea id="form-message" name="message" placeholder="Descreva o que você precisa..."></textarea>
+            </div>
+            <button type="submit" class="btn-gold form-submit" id="form-submit-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              Enviar pelo WhatsApp
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== FOOTER ======================== -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#hero" class="logo-area" aria-label="GIL ESTOFADOS">
+            <img src="assets/LOGO.png" alt="Gil Estofados" class="logo-img" />
+          </a>
+          <p class="footer-desc">Sofás, poltronas e estofados sob medida. Qualidade artesanal, design sofisticado e satisfação garantida em cada entrega.</p>
+          <div class="footer-social">
+            <a href="https://www.instagram.com/gil_estofados1" target="_blank" rel="noopener" class="social-btn" id="footer-instagram" aria-label="Instagram Gil Estofados">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="https://wa.me/5549998198389" target="_blank" rel="noopener" class="social-btn" aria-label="WhatsApp Gil Estofados">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Navegação</h4>
+          <ul>
+            <li><a href="#hero">Início</a></li>
+            <li><a href="#servicos">Serviços</a></li>
+            <li><a href="#catalogo">Catálogo</a></li>
+            <li><a href="#sobre">Sobre Nós</a></li>
+            <li><a href="#contato">Contato</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Serviços</h4>
+          <ul>
+            <li><a href="#servicos">Sofás Sob Medida</a></li>
+            <li><a href="#servicos">Reforma de Estofados</a></li>
+            <li><a href="#servicos">Poltronas &amp; Cadeiras</a></li>
+            <li><a href="#servicos">Cabeceiras &amp; Camas</a></li>
+            <li><a href="#servicos">Corporativo</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2025 GIL ESTOFADOS. Todos os direitos reservados.</p>
+        <a href="https://www.instagram.com/gil_estofados1" target="_blank" rel="noopener" class="footer-insta" id="footer-insta-bottom">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          @gil_estofados1
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================== WHATSAPP FLOAT ======================== -->
+  <a href="https://wa.me/5549998198389?text=Olá!%20Vim%20pelo%20site%20e%20gostaria%20de%20um%20orçamento!" target="_blank" rel="noopener" id="whatsapp-btn" aria-label="Chamar no WhatsApp">
+    <div class="wa-tooltip">Fale conosco!</div>
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <!-- ======================== JAVASCRIPT ======================== -->
+  <script>
+  (function() {
+    'use strict';
+
+    /* ============================================================
+       1. BACKGROUND FABRIC PARTICLE SYSTEM
+    ============================================================ */
+    const bgCanvas = document.getElementById('bg-canvas');
+    const bgCtx = bgCanvas.getContext('2d');
+    let bgW, bgH;
+
+    function resizeBg() {
+      bgW = bgCanvas.width = window.innerWidth;
+      bgH = bgCanvas.height = window.innerHeight;
+    }
+    resizeBg();
+    window.addEventListener('resize', resizeBg);
+
+    // Fabric thread nodes
+    const NODE_COUNT = 120;
+    const nodes = [];
+    const goldR = 201, goldG = 168, goldB = 76;
+
+    for (let i = 0; i < NODE_COUNT; i++) {
+      nodes.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+        r: Math.random() * 2.2 + 0.5,
+        opacity: Math.random() * 0.5 + 0.15,
+        pulse: Math.random() * Math.PI * 2,
+        pulseSpeed: Math.random() * 0.02 + 0.005
+      });
+    }
+
+    function drawBg() {
+      bgCtx.clearRect(0, 0, bgW, bgH);
+
+      // Update nodes
+      for (let n of nodes) {
+        n.x += n.vx;
+        n.y += n.vy;
+        n.pulse += n.pulseSpeed;
+        if (n.x < 0) n.x = bgW;
+        if (n.x > bgW) n.x = 0;
+        if (n.y < 0) n.y = bgH;
+        if (n.y > bgH) n.y = 0;
+      }
+
+      // Draw connections (fabric threads)
+      const MAX_DIST = 140;
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < MAX_DIST) {
+            const alpha = (1 - dist / MAX_DIST) * 0.18;
+            bgCtx.beginPath();
+            bgCtx.strokeStyle = `rgba(${goldR},${goldG},${goldB},${alpha})`;
+            bgCtx.lineWidth = 0.7;
+            bgCtx.moveTo(nodes[i].x, nodes[i].y);
+            bgCtx.lineTo(nodes[j].x, nodes[j].y);
+            bgCtx.stroke();
+          }
+        }
+      }
+
+      // Draw nodes (fabric knots)
+      for (let n of nodes) {
+        const osc = 0.5 + 0.5 * Math.sin(n.pulse);
+        const r = n.r * (0.8 + 0.4 * osc);
+        const alpha = n.opacity * (0.6 + 0.4 * osc);
+        bgCtx.beginPath();
+        bgCtx.arc(n.x, n.y, r, 0, Math.PI * 2);
+        bgCtx.fillStyle = `rgba(${goldR},${goldG},${goldB},${alpha})`;
+        bgCtx.fill();
+      }
+
+      requestAnimationFrame(drawBg);
+    }
+    drawBg();
+
+    /* ============================================================
+       2. CURSOR PARTICLES (desktop only)
+    ============================================================ */
+    const isMobile = () => window.innerWidth <= 768;
+    const pCanvas = document.getElementById('particle-canvas');
+    const pCtx = pCanvas.getContext('2d');
+    const cursorDot = document.getElementById('cursor-dot');
+    const cursorRing = document.getElementById('cursor-ring');
+
+    let pW, pH;
+    function resizeP() {
+      pW = pCanvas.width = window.innerWidth;
+      pH = pCanvas.height = window.innerHeight;
+      if (!isMobile()) {
+        document.body.classList.add('has-custom-cursor');
+      } else {
+        document.body.classList.remove('has-custom-cursor');
+      }
+    }
+    resizeP();
+    window.addEventListener('resize', resizeP);
+
+    let mouse = { x: -200, y: -200 };
+    let ringX = -200, ringY = -200;
+    const cursorParticles = [];
+    let cursorVisible = false;
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      cursorDot.style.left = e.clientX + 'px';
+      cursorDot.style.top  = e.clientY + 'px';
+
+      if (!cursorVisible && !isMobile()) {
+        cursorVisible = true;
+        cursorDot.classList.add('visible');
+        cursorRing.classList.add('visible');
+      }
+
+      if (!isMobile() && Math.random() < 0.6) {
+        spawnCursorParticle(e.clientX, e.clientY);
+      }
+    });
+
+    window.addEventListener('mousedown', () => {
+      cursorDot.classList.add('clicking');
+      cursorRing.classList.add('clicking');
+    });
+    window.addEventListener('mouseup', () => {
+      cursorDot.classList.remove('clicking');
+      cursorRing.classList.remove('clicking');
+    });
+
+    // Add glow to interactive elements
+    document.addEventListener('mouseover', (e) => {
+      const target = e.target.closest('a, button, input, select, textarea, .service-card, .catalog-card, .contact-item, [role="button"]');
+      if (target) {
+        cursorRing.classList.add('hovering');
+        cursorDot.classList.add('hovering');
+      }
+    });
+    document.addEventListener('mouseout', (e) => {
+      const target = e.target.closest('a, button, input, select, textarea, .service-card, .catalog-card, .contact-item, [role="button"]');
+      if (target) {
+        cursorRing.classList.remove('hovering');
+        cursorDot.classList.remove('hovering');
+      }
+    });
+
+    function spawnCursorParticle(x, y) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 2 + 0.5;
+      cursorParticles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 1,
+        life: 1,
+        decay: Math.random() * 0.03 + 0.015,
+        r: Math.random() * 3 + 1,
+        hue: Math.random() > 0.5 ? `201,168,76` : `212,128,42`
+      });
+    }
+
+    function drawCursor() {
+      if (!isMobile()) {
+        // Smooth ring follow
+        ringX += (mouse.x - ringX) * 0.12;
+        ringY += (mouse.y - ringY) * 0.12;
+        cursorRing.style.left = ringX + 'px';
+        cursorRing.style.top  = ringY + 'px';
+      }
+
+      pCtx.clearRect(0, 0, pW, pH);
+
+      for (let i = cursorParticles.length - 1; i >= 0; i--) {
+        const p = cursorParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.05; // gravity
+        p.life -= p.decay;
+        if (p.life <= 0) { cursorParticles.splice(i, 1); continue; }
+
+        pCtx.beginPath();
+        pCtx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+        pCtx.fillStyle = `rgba(${p.hue},${p.life * 0.85})`;
+        pCtx.shadowBlur = 8;
+        pCtx.shadowColor = `rgba(${p.hue},0.5)`;
+        pCtx.fill();
+        pCtx.shadowBlur = 0;
+      }
+
+      requestAnimationFrame(drawCursor);
+    }
+    drawCursor();
+
+    /* ============================================================
+       3. HEADER SCROLL EFFECT
+    ============================================================ */
+    const header = document.getElementById('main-header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 50);
+    }, { passive: true });
+
+    /* ============================================================
+       4. SCROLL REVEAL ANIMATION
+    ============================================================ */
+    const reveals = document.querySelectorAll('.reveal');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revealObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(r => revealObs.observe(r));
+
+    /* ============================================================
+       5. COUNTER ANIMATION
+    ============================================================ */
+    const counters = document.querySelectorAll('.stat-number[data-target]');
+    const counterObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animateCounter(e.target);
+          counterObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(c => counterObs.observe(c));
+
+    function animateCounter(el) {
+      const target = parseInt(el.getAttribute('data-target'));
+      const prefix = el.getAttribute('data-prefix') || '';
+      const suffix = el.getAttribute('data-suffix') || '';
+      const duration = 2000;
+      const start = performance.now();
+      function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = prefix + Math.round(eased * target) + suffix;
+        if (progress < 1) requestAnimationFrame(update);
+        else el.textContent = prefix + target + suffix;
+      }
+      requestAnimationFrame(update);
+    }
+
+    /* ============================================================
+       6. HAMBURGER MENU
+    ============================================================ */
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', open);
+      const spans = hamburger.querySelectorAll('span');
+      if (open) {
+        spans[0].style.transform = 'rotate(45deg) translate(5px,5px)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'rotate(-45deg) translate(5px,-5px)';
+      } else {
+        spans[0].style.transform = '';
+        spans[1].style.opacity = '';
+        spans[2].style.transform = '';
+      }
+    });
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        const spans = hamburger.querySelectorAll('span');
+        spans[0].style.transform = '';
+        spans[1].style.opacity = '';
+        spans[2].style.transform = '';
+      });
+    });
+
+    /* ============================================================
+       7. FORM → WHATSAPP
+    ============================================================ */
+    window.handleFormSubmit = function(e) {
+      e.preventDefault();
+      const name    = document.getElementById('form-name').value.trim();
+      const phone   = document.getElementById('form-phone').value.trim();
+      const service = document.getElementById('form-service').value;
+      const message = document.getElementById('form-message').value.trim();
+
+      let text = `Olá! Me chamo *${name}*`;
+      if (phone)   text += `, meu telefone é *${phone}*`;
+      if (service) text += `. Tenho interesse em: *${service}*`;
+      if (message) text += `.\n\n${message}`;
+
+      const url = `https://wa.me/5549998198389?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    };
+
+    /* ============================================================
+       8. SMOOTH ANCHOR SCROLL (with header offset)
+    ============================================================ */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          const offset = 80;
+          const top = target.getBoundingClientRect().top + window.scrollY - offset;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
+    });
+
+    /* ============================================================
+       9. PROCESS ELECTRIC PULSE ANIMATION
+    ============================================================ */
+    (function() {
+      const plCanvas = document.getElementById('process-lightning');
+      if (!plCanvas) return;
+      const plCtx = plCanvas.getContext('2d');
+      const stepsWrap = document.querySelector('.process-steps');
+      const stepCircles = Array.from(document.querySelectorAll('.step-circle'));
+
+      function resizePL() {
+        plCanvas.width  = stepsWrap.offsetWidth;
+        plCanvas.height = stepsWrap.offsetHeight;
+      }
+      resizePL();
+      window.addEventListener('resize', resizePL);
+
+      function getCircleCenters() {
+        const wRect = stepsWrap.getBoundingClientRect();
+        return stepCircles.map(c => {
+          const r = c.getBoundingClientRect();
+          return {
+            x: r.left - wRect.left + r.width  / 2,
+            y: r.top  - wRect.top  + r.height / 2
+          };
+        });
+      }
+
+      let pulseT = 0;
+      const PULSE_SPEED = 0.003;
+      const plParticles = [];
+      const plShockwaves = [];
+      let lastHitStep = -1;
+
+      function spawnPLParticle(x, y) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = Math.random() * 1.8 + 0.4;
+        plParticles.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          life: 1,
+          decay: Math.random() * 0.035 + 0.018,
+          r: Math.random() * 2.5 + 0.5
+        });
+      }
+
+      function spawnShockwave(x, y) {
+        plShockwaves.push({ x, y, r: 4, life: 1 });
+      }
+
+      function drawPL() {
+        resizePL();
+        plCtx.clearRect(0, 0, plCanvas.width, plCanvas.height);
+
+        const centers = getCircleCenters();
+        if (centers.length < 2) { requestAnimationFrame(drawPL); return; }
+
+        const sx = centers[0].x;
+        const ex = centers[centers.length - 1].x;
+        const ly = centers[0].y;
+
+        /* --- base dim line --- */
+        const bGrad = plCtx.createLinearGradient(sx, ly, ex, ly);
+        bGrad.addColorStop(0,   'rgba(201,168,76,0.06)');
+        bGrad.addColorStop(0.5, 'rgba(201,168,76,0.18)');
+        bGrad.addColorStop(1,   'rgba(201,168,76,0.06)');
+        plCtx.beginPath();
+        plCtx.moveTo(sx, ly); plCtx.lineTo(ex, ly);
+        plCtx.strokeStyle = bGrad;
+        plCtx.lineWidth = 1;
+        plCtx.stroke();
+
+        /* --- pulse head position --- */
+        const px = sx + (ex - sx) * Math.max(0, Math.min(1, pulseT));
+
+        /* --- glowing trail --- */
+        if (pulseT > 0.01) {
+          const tGrad = plCtx.createLinearGradient(sx, ly, px, ly);
+          tGrad.addColorStop(0,   'rgba(201,168,76,0.0)');
+          tGrad.addColorStop(0.6, 'rgba(201,168,76,0.25)');
+          tGrad.addColorStop(1,   'rgba(201,168,76,1.0)');
+          plCtx.beginPath();
+          plCtx.moveTo(sx, ly); plCtx.lineTo(px, ly);
+          plCtx.strokeStyle = tGrad;
+          plCtx.lineWidth = 2.5;
+          plCtx.shadowBlur = 14;
+          plCtx.shadowColor = 'rgba(201,168,76,0.85)';
+          plCtx.stroke();
+          plCtx.shadowBlur = 0;
+        }
+
+        /* --- outer glow halo --- */
+        const halo = plCtx.createRadialGradient(px, ly, 0, px, ly, 32);
+        halo.addColorStop(0,   'rgba(255,230,100,0.9)');
+        halo.addColorStop(0.35,'rgba(201,168,76,0.55)');
+        halo.addColorStop(1,   'rgba(201,168,76,0)');
+        plCtx.beginPath();
+        plCtx.arc(px, ly, 32, 0, Math.PI * 2);
+        plCtx.fillStyle = halo;
+        plCtx.fill();
+
+        /* --- bright core dot --- */
+        plCtx.beginPath();
+        plCtx.arc(px, ly, 4.5, 0, Math.PI * 2);
+        plCtx.fillStyle = 'rgba(255,245,180,1)';
+        plCtx.shadowBlur = 22;
+        plCtx.shadowColor = '#e8c86a';
+        plCtx.fill();
+        plCtx.shadowBlur = 0;
+
+        /* --- spark particles --- */
+        if (pulseT > 0 && pulseT < 1.02 && Math.random() < 0.75)
+          spawnPLParticle(px, ly);
+
+        /* --- check step hits --- */
+        centers.forEach((c, i) => {
+          if (i === 0) return;
+          const stepFrac = i / (centers.length - 1);
+          const dist = Math.abs(pulseT - stepFrac) * (ex - sx);
+          if (dist < 10 && lastHitStep !== i) {
+            lastHitStep = i;
+            spawnShockwave(c.x, ly);
+            /* flash the circle */
+            stepCircles[i].style.borderColor = 'var(--gold)';
+            stepCircles[i].style.boxShadow   = '0 0 32px rgba(201,168,76,0.7), 0 0 8px rgba(255,230,100,0.9)';
+            setTimeout(() => {
+              stepCircles[i].style.borderColor = '';
+              stepCircles[i].style.boxShadow   = '';
+            }, 700);
+          }
+        });
+
+        /* --- shockwaves --- */
+        for (let i = plShockwaves.length - 1; i >= 0; i--) {
+          const sw = plShockwaves[i];
+          sw.r    += 3;
+          sw.life -= 0.028;
+          if (sw.life <= 0) { plShockwaves.splice(i, 1); continue; }
+          plCtx.beginPath();
+          plCtx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
+          plCtx.strokeStyle = `rgba(201,168,76,${(sw.life * 0.65).toFixed(3)})`;
+          plCtx.lineWidth = 1.8;
+          plCtx.stroke();
+          /* inner bright ring */
+          plCtx.beginPath();
+          plCtx.arc(sw.x, sw.y, sw.r * 0.55, 0, Math.PI * 2);
+          plCtx.strokeStyle = `rgba(255,230,120,${(sw.life * 0.4).toFixed(3)})`;
+          plCtx.lineWidth = 0.8;
+          plCtx.stroke();
+        }
+
+        /* --- spark particles update --- */
+        for (let i = plParticles.length - 1; i >= 0; i--) {
+          const p = plParticles[i];
+          p.x  += p.vx;
+          p.y  += p.vy;
+          p.vy += 0.06;
+          p.life -= p.decay;
+          if (p.life <= 0) { plParticles.splice(i, 1); continue; }
+          plCtx.beginPath();
+          plCtx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+          plCtx.fillStyle = `rgba(201,168,76,${(p.life * 0.9).toFixed(3)})`;
+          plCtx.shadowBlur = 7;
+          plCtx.shadowColor = '#c9a84c';
+          plCtx.fill();
+          plCtx.shadowBlur = 0;
+        }
+
+        /* --- advance & loop --- */
+        pulseT += PULSE_SPEED;
+        if (pulseT > 1.15) {
+          pulseT = -0.08;
+          lastHitStep = -1;
+        }
+
+        requestAnimationFrame(drawPL);
+      }
+
+      /* Start when section enters viewport */
+      const procSection = document.getElementById('processo');
+      let plStarted = false;
+      const plObs = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !plStarted) {
+          plStarted = true;
+          drawPL();
+        }
+      }, { threshold: 0.15 });
+      if (procSection) plObs.observe(procSection);
+    })();
+
+  })();
+  </script>
+</body>
+</html>
