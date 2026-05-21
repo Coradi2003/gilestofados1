@@ -45,6 +45,7 @@
     }
     @media (max-width: 768px) {
       body.has-custom-cursor { cursor: auto; }
+      #cursor-dot, #cursor-ring, #particle-canvas { display: none !important; }
     }
     ::selection { background: var(--gold-dark); color: var(--cream); }
     img { display: block; max-width: 100%; }
@@ -191,16 +192,25 @@
       transition: all 0.3s;
     }
     .mobile-menu {
-      display: none;
       position: fixed; top: 80px; left: 0; right: 0;
       background: rgba(14,12,9,0.98);
       backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       padding: 1.5rem 2rem;
       flex-direction: column; gap: 1.2rem;
       z-index: 999;
       border-bottom: 1px solid rgba(201,168,76,0.2);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
+      display: flex;
     }
-    .mobile-menu.open { display: flex; }
+    .mobile-menu.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
     .mobile-menu a {
       font-size: 1rem; font-weight: 500;
       color: var(--text-main);
@@ -779,8 +789,9 @@
     resizeBg();
     window.addEventListener('resize', resizeBg);
 
-    // Fabric thread nodes
-    const NODE_COUNT = 80; // slightly fewer threads for cleaner address view
+    // Fabric thread nodes (optimized count for mobile)
+    const isMobileDevice = () => window.innerWidth <= 768;
+    const NODE_COUNT = isMobileDevice() ? 35 : 80;
     const nodes = [];
     const goldR = 201, goldG = 168, goldB = 76;
 
@@ -929,12 +940,14 @@
     }
 
     function drawCursor() {
-      if (!isMobile()) {
-        ringX += (mouse.x - ringX) * 0.12;
-        ringY += (mouse.y - ringY) * 0.12;
-        cursorRing.style.left = ringX + 'px';
-        cursorRing.style.top  = ringY + 'px';
+      if (isMobile()) {
+        requestAnimationFrame(drawCursor);
+        return;
       }
+      ringX += (mouse.x - ringX) * 0.12;
+      ringY += (mouse.y - ringY) * 0.12;
+      cursorRing.style.left = ringX + 'px';
+      cursorRing.style.top  = ringY + 'px';
 
       pCtx.clearRect(0, 0, pW, pH);
 
@@ -985,6 +998,16 @@
         spans[1].style.opacity = '';
         spans[2].style.transform = '';
       }
+    });
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        const spans = hamburger.querySelectorAll('span');
+        spans[0].style.transform = '';
+        spans[1].style.opacity = '';
+        spans[2].style.transform = '';
+      });
     });
 
   })();

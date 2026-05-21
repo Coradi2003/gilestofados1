@@ -90,7 +90,7 @@
       z-index: 99997;
     }
     @media (max-width: 768px) {
-      #cursor-dot, #cursor-ring { display: none; }
+      #cursor-dot, #cursor-ring, #particle-canvas { display: none; }
     }
 
     /* =============================================
@@ -196,16 +196,25 @@
       transition: all 0.3s;
     }
     .mobile-menu {
-      display: none;
       position: fixed; top: 80px; left: 0; right: 0;
       background: rgba(14,12,9,0.98);
       backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       padding: 1.5rem 2rem;
       flex-direction: column; gap: 1.2rem;
       z-index: 999;
       border-bottom: 1px solid rgba(201,168,76,0.2);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
+      display: flex;
     }
-    .mobile-menu.open { display: flex; }
+    .mobile-menu.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
     .mobile-menu a {
       font-size: 1rem; font-weight: 500;
       color: var(--text-main);
@@ -1219,7 +1228,7 @@
       .mobile-menu { top: 70px; }
 
       /* Hero */
-      #hero { padding-top: 70px; }
+      #hero { padding-top: 80px; padding-bottom: 3.5rem; min-height: auto; }
       .hero-left-bg { width: 100%; background-position: center center; }
       .hero-bg-overlay {
         background: linear-gradient(to bottom, rgba(14,12,9,0.92) 0%, rgba(14,12,9,0.78) 50%, rgba(14,12,9,0.88) 100%);
@@ -1264,12 +1273,22 @@
       .catalog-row { grid-template-columns: repeat(2,1fr); gap: 1rem; }
       #catalogo { padding: 4rem 0; }
       .catalog-header { margin-bottom: 2.5rem; }
+      .catalog-overlay {
+        opacity: 1;
+        padding: 0.8rem;
+      }
+      .catalog-overlay-btn {
+        padding: 8px 14px;
+        font-size: 0.68rem;
+        letter-spacing: 1px;
+      }
 
       /* About */
       #sobre { padding: 4rem 0; }
-      .about-grid { gap: 2.5rem; }
+      .about-grid { gap: 3.5rem; }
       .about-image-stack { height: 280px; }
       .about-img-main { width: 80%; }
+      .about-img-accent { bottom: -1rem; right: 0.5rem; width: 40%; }
       .about-badge { width: 70px; height: 70px; top: 1rem; right: 0.5rem; }
       .about-badge-inner { font-size: 1.3rem; }
 
@@ -1277,6 +1296,16 @@
       #processo { padding: 4rem 0; }
       .process-steps { grid-template-columns: repeat(2,1fr); gap: 2rem; }
       .process-header { margin-bottom: 3rem; }
+      #process-lightning { display: none !important; }
+      #processo .process-step.reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+
+      /* Hero social proof */
+      .hero-social-proof { display: none !important; }
+      .hero-divider { display: none !important; }
 
       /* Contact */
       #contato { padding: 4rem 0; }
@@ -1309,7 +1338,7 @@
       .container { padding: 0 1rem; }
 
       /* Hero adjustments */
-      #hero { padding-top: 64px; }
+      #hero { padding-top: 70px; padding-bottom: 2.5rem; min-height: auto; }
       .hero-title { font-size: clamp(1.9rem, 7.5vw, 2.6rem); }
       .hero-ctas { flex-direction: column; align-items: center; }
       .btn-gold, .btn-outline { width: 100%; justify-content: center; padding: 14px 20px; font-size: 0.78rem; }
@@ -1325,6 +1354,16 @@
       /* Process */
       .process-steps { grid-template-columns: 1fr; gap: 1.5rem; }
       .process-step { padding: 0 0.5rem; }
+      #process-lightning { display: none !important; }
+      #processo .process-step.reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+
+      /* Hero social proof */
+      .hero-social-proof { display: none !important; }
+      .hero-divider { display: none !important; }
 
       /* About badge hide */
       .about-badge { display: none; }
@@ -1955,8 +1994,9 @@
     resizeBg();
     window.addEventListener('resize', resizeBg);
 
-    // Fabric thread nodes
-    const NODE_COUNT = 120;
+    // Fabric thread nodes (optimized count for mobile)
+    const isMobileDevice = () => window.innerWidth <= 768;
+    const NODE_COUNT = isMobileDevice() ? 45 : 120;
     const nodes = [];
     const goldR = 201, goldG = 168, goldB = 76;
 
@@ -2105,13 +2145,15 @@
     }
 
     function drawCursor() {
-      if (!isMobile()) {
-        // Smooth ring follow
-        ringX += (mouse.x - ringX) * 0.12;
-        ringY += (mouse.y - ringY) * 0.12;
-        cursorRing.style.left = ringX + 'px';
-        cursorRing.style.top  = ringY + 'px';
+      if (isMobile()) {
+        requestAnimationFrame(drawCursor);
+        return;
       }
+      // Smooth ring follow
+      ringX += (mouse.x - ringX) * 0.12;
+      ringY += (mouse.y - ringY) * 0.12;
+      cursorRing.style.left = ringX + 'px';
+      cursorRing.style.top  = ringY + 'px';
 
       pCtx.clearRect(0, 0, pW, pH);
 
@@ -2155,7 +2197,7 @@
           revealObs.unobserve(e.target);
         }
       });
-    }, { threshold: 0.12 });
+    }, { threshold: 0.05 });
     reveals.forEach(r => revealObs.observe(r));
 
     /* ============================================================
@@ -2305,38 +2347,56 @@
       }
 
       function drawPL() {
+        if (window.innerWidth <= 768) return;
         resizePL();
         plCtx.clearRect(0, 0, plCanvas.width, plCanvas.height);
 
         const centers = getCircleCenters();
-        if (centers.length < 2) { requestAnimationFrame(drawPL); return; }
+        const N = centers.length;
+        if (N < 2) { requestAnimationFrame(drawPL); return; }
 
-        const sx = centers[0].x;
-        const ex = centers[centers.length - 1].x;
-        const ly = centers[0].y;
-
-        /* --- base dim line --- */
-        const bGrad = plCtx.createLinearGradient(sx, ly, ex, ly);
-        bGrad.addColorStop(0,   'rgba(201,168,76,0.06)');
-        bGrad.addColorStop(0.5, 'rgba(201,168,76,0.18)');
-        bGrad.addColorStop(1,   'rgba(201,168,76,0.06)');
+        /* --- base connection line (trace all steps) --- */
         plCtx.beginPath();
-        plCtx.moveTo(sx, ly); plCtx.lineTo(ex, ly);
-        plCtx.strokeStyle = bGrad;
-        plCtx.lineWidth = 1;
+        plCtx.moveTo(centers[0].x, centers[0].y);
+        for (let i = 1; i < N; i++) {
+          plCtx.lineTo(centers[i].x, centers[i].y);
+        }
+        plCtx.strokeStyle = 'rgba(201,168,76,0.15)';
+        plCtx.lineWidth = 1.5;
         plCtx.stroke();
 
-        /* --- pulse head position --- */
-        const px = sx + (ex - sx) * Math.max(0, Math.min(1, pulseT));
+        /* --- calculate pulse head position (px, py) along the path --- */
+        let px = centers[0].x;
+        let py = centers[0].y;
+        
+        const progress = Math.max(0, Math.min(1, pulseT));
+        const scaled = progress * (N - 1);
+        let idx = Math.floor(scaled);
+        let t = scaled - idx;
+        if (idx >= N - 1) {
+          idx = N - 2;
+          t = 1;
+        }
+        px = centers[idx].x + (centers[idx + 1].x - centers[idx].x) * t;
+        py = centers[idx].y + (centers[idx + 1].y - centers[idx].y) * t;
 
         /* --- glowing trail --- */
         if (pulseT > 0.01) {
-          const tGrad = plCtx.createLinearGradient(sx, ly, px, ly);
+          // Dynamic gradient pointing in the direction of the pulse
+          const tGrad = plCtx.createLinearGradient(centers[0].x, centers[0].y, px, py);
           tGrad.addColorStop(0,   'rgba(201,168,76,0.0)');
           tGrad.addColorStop(0.6, 'rgba(201,168,76,0.25)');
           tGrad.addColorStop(1,   'rgba(201,168,76,1.0)');
+
           plCtx.beginPath();
-          plCtx.moveTo(sx, ly); plCtx.lineTo(px, ly);
+          plCtx.moveTo(centers[0].x, centers[0].y);
+          for (let i = 0; i <= idx; i++) {
+            if (i === idx) {
+              plCtx.lineTo(px, py);
+            } else {
+              plCtx.lineTo(centers[i + 1].x, centers[i + 1].y);
+            }
+          }
           plCtx.strokeStyle = tGrad;
           plCtx.lineWidth = 2.5;
           plCtx.shadowBlur = 14;
@@ -2346,18 +2406,18 @@
         }
 
         /* --- outer glow halo --- */
-        const halo = plCtx.createRadialGradient(px, ly, 0, px, ly, 32);
+        const halo = plCtx.createRadialGradient(px, py, 0, px, py, 32);
         halo.addColorStop(0,   'rgba(255,230,100,0.9)');
         halo.addColorStop(0.35,'rgba(201,168,76,0.55)');
         halo.addColorStop(1,   'rgba(201,168,76,0)');
         plCtx.beginPath();
-        plCtx.arc(px, ly, 32, 0, Math.PI * 2);
+        plCtx.arc(px, py, 32, 0, Math.PI * 2);
         plCtx.fillStyle = halo;
         plCtx.fill();
 
         /* --- bright core dot --- */
         plCtx.beginPath();
-        plCtx.arc(px, ly, 4.5, 0, Math.PI * 2);
+        plCtx.arc(px, py, 4.5, 0, Math.PI * 2);
         plCtx.fillStyle = 'rgba(255,245,180,1)';
         plCtx.shadowBlur = 22;
         plCtx.shadowColor = '#e8c86a';
@@ -2366,16 +2426,16 @@
 
         /* --- spark particles --- */
         if (pulseT > 0 && pulseT < 1.02 && Math.random() < 0.75)
-          spawnPLParticle(px, ly);
+          spawnPLParticle(px, py);
 
         /* --- check step hits --- */
         centers.forEach((c, i) => {
           if (i === 0) return;
-          const stepFrac = i / (centers.length - 1);
-          const dist = Math.abs(pulseT - stepFrac) * (ex - sx);
-          if (dist < 10 && lastHitStep !== i) {
+          const stepFrac = i / (N - 1);
+          const dist = Math.abs(pulseT - stepFrac);
+          if (dist < 0.03 && lastHitStep !== i) {
             lastHitStep = i;
-            spawnShockwave(c.x, ly);
+            spawnShockwave(c.x, c.y);
             /* flash the circle */
             stepCircles[i].style.borderColor = 'var(--gold)';
             stepCircles[i].style.boxShadow   = '0 0 32px rgba(201,168,76,0.7), 0 0 8px rgba(255,230,100,0.9)';
@@ -2448,13 +2508,29 @@
        10. SERVICE CARD SPOTLIGHT EFFECT
     ============================================================ */
     document.querySelectorAll('.service-card').forEach(card => {
-      card.addEventListener('mousemove', e => {
+      const updateSpotlight = (clientX, clientY) => {
         const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
         card.style.setProperty('--mouse-x', `${x}px`);
         card.style.setProperty('--mouse-y', `${y}px`);
+      };
+
+      card.addEventListener('mousemove', e => {
+        updateSpotlight(e.clientX, e.clientY);
       });
+
+      card.addEventListener('touchstart', e => {
+        if (e.touches.length > 0) {
+          updateSpotlight(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: true });
+
+      card.addEventListener('touchmove', e => {
+        if (e.touches.length > 0) {
+          updateSpotlight(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: true });
     });
 
   })();
